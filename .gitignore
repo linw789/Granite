@@ -24,3 +24,6 @@ perf.data
 /viewer/build.gradle
 /viewer/android
 /viewer/assets
+
+build_*/
+compile_commands.json
