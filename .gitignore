@@ -26,4 +26,5 @@ perf.data
 /viewer/assets
 
 build_*/
+.vscode/
 compile_commands.json
