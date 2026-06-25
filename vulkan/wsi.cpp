@@ -1865,6 +1865,17 @@ bool WSI::end_frame()
 			// Cannot release the WSI wait semaphore until we observe that the image has been
 			// waited on again.
 			// Could make this a bit tighter with swapchain_maintenance1, but not that important here.
+			//
+			// linw: release_semaphores holds a list of Semaphore which is of type InstrusivePtr which is 
+			//       ref-counted. If release_semaphores[swapchain_index] is null, this just parks `release`
+			//       semaphore (which was just passed to vkQueuePresent(), and is still being waited by the
+			//       presentation engine). If release_semaphores[swapchain_index] already points to a valid
+			//       semaphore, it means that the pointed-to semaphore was previously used. And since now we
+			//       get the same swapchain image, it must means that the presentation engine had successfully 
+			//       waited on this swapchain image previously, so the previously used semaphore is no longer
+			//       in-use. By moving into the existing item, the existing item will call its destructor which
+			//       decrements reference. If the reference count drops to zero, the destructor of actual
+			//       semaphore it points to will be called and the semaphore recycled (semaphore.cpp:37).
 			release_semaphores[swapchain_index] = std::move(release);
 		}
 
